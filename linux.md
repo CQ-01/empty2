@@ -427,7 +427,187 @@ $ chmod 644 a.out
 $ || a.out
 -rw-r--r--. 1 centos centos 60324  7월 22 12:27 a.out
 ```
+
+### 문자열 검색(grep)
+- 특정 파일이나 명령어 수행 결과로부터 검색된 해당 문자열이 포함된 라인만 화면 출력
+- 옵션
+  - A숫자 : 검색 문자열을 포함하여 지정한 숫자만큼의 아래쪽 라인 출력
+  - B숫자 : 검색 문자열을 포함하여 지정한 숫자만큼의 위쪽 라인 출력
+  - C : 검색 문자열을 포함한 라인의 수를 출력
+  - i : 검색 문자열의 대소문자를 식별하지 않음
+  - n : 검색 결과에 라인 번호를 붙여 출력
+```bash
+$ grep -i ROOT /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+operator:x:11:0:operator:/root:/sbin/nologin
+
+$ grep -ni ROOT /etc/passwd
+1:root:x:0:0:root:/root:/bin/bash
+10:operator:x:11:0:operator:/root:/sbin/nologin
+
+$ grep -c nologin /etc/passwd
+37
+```
+### 파일의 크기 정보 출력(wc : word count)
+- 특정 파일을 구성하는 단어의 수를 출력
+- 옵션을 통해 문자의 수, 단어 수, 문장의 수까지 출력 가능
+- 사용법 : wc [옵션] 파일명
+- 옵션
+  - c : 파일을 구성하는 문자의 수를 출력
+  - w : 파일을 구성하는 단어의 수를 출력
+  - | : 파일을 구성하는 문장의 수를 출력
+  - 옵션 미지정시 문자의 수, 단어의 수, 문장의 수 모두 출력
+```bash
+$ wc /etc/passwd
+  42  83 2192 /etc/passwd
+```
+
+## 3. 프로세스 관리
+### 수행중인 프로세스 상태 출력(ps)
+- 현재 시스템에서 수행중인 프로세스에 대한 정보를 출력
+- 프로세스의 실행 상태, CPU 사용 정보, 메모리 사용 정보 등 출력
+- 옵션
+  - a : 현재 터미널에서 수행 중인 프로세스의 PID, 회선 정보, 상태, 수행시간, 이름 출력
+  - x : 현재 시스템에서 수행 중인 모든 프로세스의 PID, 회선정보, 상태, 수행시간, 이름을 출력
+  - e : -A 옵션과 동일
+  - u : 사용자 아이디, 메모리 정보, CPU 정보, 시간 정보를 추가하여 출력
+  - f : 사용자의 UID와 부모 프로세스의 PID를 포함한 프로세스 정보를 출력
+```bash
+$ ps -ef | head -5
+UID   PID   PPID   C   STIME   TTY   TIME      CMD
+root  1     0      0   15:34   ?     00:00:02  /user/lin/systemd/systemd --switched-root --system --deserialize 22
+root  2     0      0   15:34   ?     00:00:00  [kthreadd]
+root  3     0      0   15:34   ?     00:00:00  [ksoftirqd/0]
+
+$ ps -aux | head -5
+USER   PID  %CPU   %MEM   VSZ     RSS   TTY   STAT  START   TIME    COMMAND
+root   1    0.0    0.3    128160  6756  ?   Ss    15:34   0:02    /usr/lib/systemd/systemd --switched-root --system --deserialize 22
+root   2    0.0   0.0     0       0     ?     S     15:34   0:00    [kthreadd]
+root   3    0.0   0.0     0       0     ?     S     15:34   0:00    [ksoftirqd/0]  
+```
+
+### 수행 중인 프로세스의 계층 구조 출력(pstree)
+- 시스템에 존재하는 부모 프로세스와 자식 프로세스 간의 계층 구조를 보여주는 기능
+- 옵션
+  - a : 명령어의 인수까지 출력
+  - c : 동일한 하위 디렉토리를 축약하지 않고 모두 출력
+  - h : 현재 수행 중인 부모 프로세스와 자식 프로세스를 진하게 표시
+  - p : 프로세스 계층 구조에 PID를 포함해서 출력
+  
+![pstree](/img/img05.png)
+
+### 프로세스의 실행 정보 출력(top)
+- 프로세스의 실행 상태를 실시간으로 확인할 수 있는 명령
+- 일정시간마다 갱신하면서 CPU, 메모리 사용 프로세스 실행 정보 출력
+- 옵션
+  - d 시간(초) : 프로세스 실행 현황을 갱신하는 시간을 지정
+  - p PID : 지정된 PID를 가진 프로세스 정보만 출력
+  - i : Zombie나 idle 상태의 프로세스는 제외하고 출력
+  - n 회수 : 지정된 회수만큼만 실행 현황을 갱신하여 출력
+  - u 사용자 : 지정된 사용자 계정이 수행하는 프로세스 정보를 출력
+```bash
+$ top
+top - 16:20:45 up 45 min, 1 user, load average: 0.17, 0.08, 0.06
+Tasks: 150 total, 1 running, 149 sleeping, 0 stopped, 0 zombie
+%Cpu(s): 5.9 us, 5.9 sy, 0.0 ni, 88.2 id, 0.0 wa, 0.0 hi, 0.0 si, 0.0 st
+KiB Mem : 1882836 total, 933256 free, 348096 used, 601484 buff/cache
+KiB Swap : 2097148 total, 2097148 free,  0 used. 1336524 avail Mem
+
+PID   USER  PR  NI  VIRT    RES   SHR   S %CPU  %MEM  TIME+   COMMAND
+2658  root  20  0   161972  2192  1528  R 6.2   0.1   0:00.01 top
+1     root  20  0   128160  6756  4104  S 0.0   0.4   0:02.64 systemd
+2     root  20  0   0       0     0     S 0.0   0.0   0:00.00 kthreadd
+3     root  20  0   0       0     0     S 0.0   0.0   0:00.17 ksoftirqd/0
+5     root  0  -20  0       0     0     S 0.0   0.0   0:00.00 kworker/0:0H
+```
+
+### 프로세스의 종료(kill)
+- 프로세스는 수행을 완료하면 자동 소면
+- 실행을 마친 프로세스가 종료되지 않으면 $\rightarrow$ Zombie
+- kill 명령어를 사용하여 프로세스 종료
+```bash
+$ sleep 1000 &
+[1] 8788
+$ kill -s INT 8788
+ [1]+ Interrupt       sleep 1000
+
+$ sleep 1000 &
+[1] 8792
+$ kill -9 87
+[1]+ Killed           sleep 1000
+```
 # III. 쉘 환경
+## 1. 쉘
+### 쉘이란
+- 리눅스와 사용자의 인터페이스 역할을 수행
+- 사용자가 입력한 명령어를 시스템이 실행할 수 있도록 번역(interpreter)
+
+![shell](/img/img06.png)
+
+### Environment Variable
+- 쉘은 변수를 통해서 동작하는 방법을 정의
+```bash
+$ NAME = value
+$ env     (환경 변수 확인)
+$ set     (지역 변수 확인 + 환경변수)
+$ unset NAME
+```
+- PATH : Executable search path
+- TERM : Login terminal type (e.g. vt100, xterm)
+- SHELL : Path to login shell (e.g. /bin/sh)
+- HOME : Path to login home directory
+- USER : Username of user
+- PWD : Path to current working directory
+- PS1 : Primary prompt string
+- HISTFILE : history file 위치
+- HISTSIZE  : 메모리 버퍼 저장할 히스토리 수
+  
+### 리눅스 환경 설정 파일
+- 임의의 환경 변수를 영구적으로 사용하기 위해 특정 파일에 기록
+```bash
+/etc/profile
+ - 시스템 로그인 과정에서 모든 사용자가 사용하는 환경설정 파일
+ - 시스템 전역 쉘 변수들을 초기화
+
+/etc/bashrc
+ - /etc/profile에 의해서 선택적으로 호출
+ - 일반적인 쉘 함수와 alias, umask 등 선택
+
+~/.bash_profile (~/.bash_login → ~/.profile)
+ - 각 계정별로 사용할 환경 설정을 기록
+
+~/.bashrc
+ - 사용자 개인의 쉘 옵션, alias, 변수 정보를 기록
+
+~/.bash_logour
+ - 계정이 로그아웃 할 경우 참고
+```
+
+## 2. 쉘 표준 입출력
+### 리다이렉션
+- <, > 기호를 사용하여 표준 입출력의 방향을 재지정
+- 출력 / 입력으로 지정된 파일이 이미 존재하는 경우는 overwrite
+- 출력 / 입력으로 지정된 파일에 내용을 추가하는 경우
+- $>>$ 기호를 사용하여 붙여 넣을 수 있다.
+  
+|리다이렉션 기호|의미|
+|--|--|
+|<|입력 방향을 재지정|
+|>|출력 방향을 재지정|
+|2>|오류 방향을 재지정|
+|&>|표준출력 + 표준오류 동시 재지정|
+```bash
+$ date  > date.out
+$ cat date.out
+2018. 07. 22. (일) 15:50:37 KST
+$ who > date.out
+$ cat date.out
+root    pts/0     2018-07-22 15:43 (gateway)
+$ date >> date.out
+$ cat date.out
+root    pts/0     2018-07-22  15:43 (gateway)
+2018. 07. 22. (일) 15:51:00 KST
+```
 # IV. 리눅스 파일 편집
 ## Vi 편집기
 ### vi 편집기의 시작과 종료
