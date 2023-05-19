@@ -710,3 +710,10 @@ root    pts/0     2018-07-22  15:43 (gateway)
 # apt list --upgradable
  apt-get upgrade 시 업그레이드가 될 패키지 목록을 출력
 ```
+
+AWS
+ 사이트 주소()
+ 인스턴스 실행
+ 
+ putty generator 활용 ppk 획득
+ ppk 활용 접속
